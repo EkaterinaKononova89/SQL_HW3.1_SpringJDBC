@@ -9,13 +9,13 @@ import java.util.List;
 
 @RestController
 public class OrdersController {
-    OrdersRepository repository;
+    private final OrdersRepository repository;
 
     public OrdersController(OrdersRepository repository) {
         this.repository = repository;
     }
 
-    @GetMapping("/products/fetch-product") // принципиально, чтобы возвращал String или можно List?
+    @GetMapping("/products/fetch-product")
     public List<String> getProductName(@RequestParam String name) {
         return repository.getProductName(name);
     }
