@@ -1,26 +1,25 @@
 package ru.netology.SQL_HW3._SpringJDBC.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
 public class OrdersRepository {
-    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    @PersistenceContext  // многопоточный @Autowire
+    private final EntityManager entityManager;
     private final String scriptRequest;
 
-
-    public OrdersRepository(NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    public OrdersRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
         scriptRequest = read("scriptRequest.sql");
     }
 
@@ -33,10 +32,11 @@ public class OrdersRepository {
         }
     }
 
-    public List<String> getProductName(String firstName) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("firstName", firstName);
-        return namedParameterJdbcTemplate.queryForList(scriptRequest, map, String.class);
+    public List<String> getProductName(String name) {
+        List<String> orders = entityManager.createNativeQuery(scriptRequest)
+                .setParameter("firstName", name)
+                .getResultList();
+        return orders;
     }
 }
 
